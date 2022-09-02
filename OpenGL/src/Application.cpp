@@ -10,6 +10,7 @@
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
 
 struct ShaderProgramSource
 {
@@ -125,15 +126,12 @@ int main(void)
             2, 3, 0  // the second triangle
         };
 
-        unsigned int vao;
-        GLCall(glGenVertexArrays(1, &vao));
-        GLCall(glBindVertexArray(vao));
-
+        VertexArray va;
         VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
-        GLCall(glEnableVertexAttribArray(0));
-        // link buffer and vao.
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0)); // position 
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        va.AddBuffer(vb, layout);
 
         IndexBuffer ib(indices, 6);
 
@@ -146,7 +144,7 @@ int main(void)
         GLCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f));
 
         // unbind everything
-        GLCall(glBindVertexArray(0));
+        va.Unbind();
         GLCall(glUseProgram(0));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
@@ -162,7 +160,7 @@ int main(void)
             GLCall(glUseProgram(shader)); // bind shader
             GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f)); // set uniform
 
-            GLCall(glBindVertexArray(vao));
+            va.Bind();
             ib.Bind(); // bind index buffer.
 
             GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));  // 6是索引数量，而不是顶点数量
