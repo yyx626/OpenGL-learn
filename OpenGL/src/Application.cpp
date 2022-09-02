@@ -103,6 +103,11 @@ int main(void)
     if (!glfwInit())
         return -1;
     
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);  // opengl version 3.3
+    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+
+
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!window)
@@ -134,13 +139,19 @@ int main(void)
         2, 3, 0  // the second triangle
     };
 
+    unsigned int vao;
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+
     unsigned int buffer;
     GLCall(glGenBuffers(1, &buffer)); // generate a buffer and return an id.
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer)); // bind buffer
     GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float),positions,GL_STATIC_DRAW)); 
 
     GLCall(glEnableVertexAttribArray(0));
-    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2,0)); // position
+
+    // link buffer and vao.
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2,0)); // position 
 
     // send data from CPU to GPU
     unsigned int ibo;  // index buffer object
@@ -156,15 +167,26 @@ int main(void)
     ASSERT(location != -1); // can't find uniform.
     GLCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f));
 
+    // unbind everything
+    GLCall(glBindVertexArray(0));
+    GLCall(glUseProgram(0));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     float r = 0.0f;
     float increment = 0.05f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+        GLCall(glUseProgram(shader)); // bind shader
+        GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f)); // set uniform
+
+        GLCall(glBindVertexArray(vao));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); // bind index buffer.
+        
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));  // 6是索引数量，而不是顶点数量
 
         if (r > 1.0f)
