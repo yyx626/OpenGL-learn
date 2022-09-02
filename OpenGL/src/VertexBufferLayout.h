@@ -32,7 +32,10 @@ public:
 
 	template<typename T>
 	void Push(unsigned int count) {
-		static_assert(false); // static_assert 2607
+		static_assert(true); //  false => static_assert 2607  
+		// static_assert(常量表达式，提示字符串)。
+		/*如果第一个参数常量表达式的值为真(true 或者非零值)，那么static_assert不做任何事情，就像它不存在一样，
+		否则会产生一条编译错误，错误位置就是该static_assert语句所在行，错误提示就是第二个参数提示字符串。*/
 	}
 
 	template<>
