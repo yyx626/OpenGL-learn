@@ -41,7 +41,7 @@ namespace test {
 
 		m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 		m_Shader->Bind();
-		m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+		m_Shader->SetUniform4f("u_Color", glm::vec4(0.8f, 0.3f, 0.8f, 1.0f));
 
 		m_Texture = std::make_unique<Texture>("res/textures/wall.png");
 		m_Shader->SetUniform1i("u_Texture", 0);
@@ -68,14 +68,14 @@ namespace test {
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), m_TranslationA);
 			glm::mat4 mvp = m_Proj * m_View * model;  // OpenGL 从右向左乘
 			m_Shader->Bind(); // bind shader
-			m_Shader->SetUniformMat4f("u_MVP", mvp);
+			m_Shader->SetUniformMat4("u_MVP", mvp);
 			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 		}
 		{
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), m_TranslationB);
 			glm::mat4 mvp = m_Proj * m_View * model;  // OpenGL 从右向左乘
 			m_Shader->Bind(); // bind shader
-			m_Shader->SetUniformMat4f("u_MVP", mvp);
+			m_Shader->SetUniformMat4("u_MVP", mvp);
 			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 		}
 	}
